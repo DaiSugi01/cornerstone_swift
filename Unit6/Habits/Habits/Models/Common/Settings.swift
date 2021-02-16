@@ -12,6 +12,16 @@ struct Settings {
     
     private let defaults = UserDefaults.standard
     
+    let currentUser = User(id: "activeUSer",
+                           name: "Daiki Sugihara",
+                           color: Color(
+                            hue: 0.75707988194531695,
+                            saturation: 0.81293901213002762,
+                            brightness: 0.92267943863794188
+                           ),
+                           bio: "Hello"
+    )
+    
     enum Setting {
         static let favoriteHabits = "favoriteHabits"
         static let followedUserIDs = "followedUserIds"

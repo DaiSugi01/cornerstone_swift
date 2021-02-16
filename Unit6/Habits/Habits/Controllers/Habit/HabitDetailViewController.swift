@@ -17,19 +17,23 @@ class HabitDetailViewController: UIViewController {
     var habit: Habit!
     var updateTimer: Timer?
     
-    typealias DataSourceType = UICollectionViewDiffableDataSource<ViewModel.Section, ViewModel.Item>
-    
+    typealias DataSourceType =
+       UICollectionViewDiffableDataSource<ViewModel.Section,
+       ViewModel.Item>
+
     enum ViewModel {
         enum Section: Hashable {
             case leaders(count: Int)
             case remaining
         }
-        
+
         enum Item: Hashable, Comparable {
             case single(_ stat: UserCount)
             case multiple(_ stats: [UserCount])
-            
-            static func < (lhs: ViewModel.Item, rhs: ViewModel.Item) -> Bool {
+
+            static func < (lhs:
+               HabitDetailViewController.ViewModel.Item,
+               rhs: HabitDetailViewController.ViewModel.Item) -> Bool {
                 switch (lhs, rhs) {
                 case (.single(let lCount), .single(let rCount)):
                     return lCount.count < rCount.count
@@ -88,23 +92,23 @@ class HabitDetailViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     init?(coder: NSCoder, habit: Habit) {
         self.habit = habit
         super.init(coder: coder)
     }
     
     func update() {
-        HabitStatisticsRequest(habitNames: [habit.name]).send() { result in
+        HabitStatisticsRequest(habitNames: [habit.name]).send { result in
             if case .success(let statistics) = result, statistics.count > 0 {
                 self.model.habitStatistics = statistics[0]
             } else {
                 self.model.habitStatistics = nil
             }
-        }
-        
-        DispatchQueue.main.async {
-            self.updateCollectionView()
+
+            DispatchQueue.main.async {
+                self.updateCollectionView()
+            }
         }
     }
     
@@ -116,10 +120,11 @@ class HabitDetailViewController: UIViewController {
     }
     
     func createDataSource() -> DataSourceType {
-        return DataSourceType(collectionView: collectionView){
-            (collectionView, indexPath, grouping) -> UICollectionViewCell in
+        return DataSourceType(collectionView: collectionView)
+           { (collectionView, indexPath, grouping) ->
+           UICollectionViewCell? in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "UserCount", for: indexPath) as! PrimarySecondaryTextCollectionViewCell
-            
+
             switch grouping {
             case .single(let userStat):
                 cell.primaryTextLabel.text = userStat.uesr.name
@@ -127,7 +132,7 @@ class HabitDetailViewController: UIViewController {
             default:
                 break
             }
-            
+
             return cell
         }
     }
@@ -149,4 +154,5 @@ class HabitDetailViewController: UIViewController {
         
         return UICollectionViewCompositionalLayout(section: section)
     }
+    
 }

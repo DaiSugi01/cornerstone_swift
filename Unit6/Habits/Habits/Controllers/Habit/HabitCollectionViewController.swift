@@ -7,7 +7,6 @@
 
 import UIKit
 
-private let reuseIdentifier = "Cell"
 private let sectionHeaderKind = "SectionHeader"
 private let sectionHeaderIdentifier = "HeaderView"
 
@@ -55,10 +54,14 @@ class HabitCollectionViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         dataSource = createDataSource()
         collectionView.dataSource = dataSource
         collectionView.collectionViewLayout = createLayout()
+        
         collectionView.register(NamedSectionHeaderView.self, forSupplementaryViewOfKind: sectionHeaderKind, withReuseIdentifier: sectionHeaderIdentifier)
+        
+        collectionView.register(PrimarySecondaryTextCollectionViewCell.self, forCellWithReuseIdentifier: "DetailCell")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,10 +77,10 @@ class HabitCollectionViewController: UICollectionViewController {
             case .failure:
                 self.model.habitsByName = [:]
             }
-        }
-        
-        DispatchQueue.main.async {
-            self.updateCollectionView()
+            
+            DispatchQueue.main.async {
+                self.updateCollectionView()
+            }
         }
     }
     
@@ -86,6 +89,7 @@ class HabitCollectionViewController: UICollectionViewController {
             into: [ViewModel.Section: [ViewModel.Item]]()) { partial, habit in
             let section: ViewModel.Section
             let item: ViewModel.Item
+            print(habit)
             
             if model.favoriteHabits.contains(habit) {
                 section = .favorites
@@ -100,7 +104,7 @@ class HabitCollectionViewController: UICollectionViewController {
         
         itemsBySection = itemsBySection.mapValues { $0.sorted() }
         let sectionIds = itemsBySection.keys.sorted()
-        
+        print(itemsBySection)
         dataSource.applySnapshotUsing(sectionIDs: sectionIds, itemsBySection: itemsBySection)
     }
     
@@ -132,26 +136,32 @@ class HabitCollectionViewController: UICollectionViewController {
     func createLayout() -> UICollectionViewCompositionalLayout {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .fractionalHeight(1)
-        )
+            heightDimension: .fractionalHeight(1))
+        
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .absolute(44)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 1)
+            heightDimension: .absolute(44))
         
-        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                heightDimension: .absolute(36))
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: groupSize,
+            subitem: item,
+            count: 1)
+        
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .absolute(36))
+        
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
-            elementKind: "SectionHeader", alignment: .top)
+            elementKind: "SectionHeader",
+            alignment: .top)
         sectionHeader.pinToVisibleBounds = true
-
+        
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: 10, bottom: 0, trailing: 10)
         section.boundarySupplementaryItems = [sectionHeader]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
         
         return UICollectionViewCompositionalLayout(section: section)
     }
@@ -170,8 +180,7 @@ class HabitCollectionViewController: UICollectionViewController {
         
         return config
     }
-    
-    
+  
     @IBSegueAction func showHabitDetail(_ coder: NSCoder, sender: UICollectionViewCell?) -> HabitDetailViewController? {
         guard let cell = sender,
               let indexPath = collectionView.indexPath(for: cell),

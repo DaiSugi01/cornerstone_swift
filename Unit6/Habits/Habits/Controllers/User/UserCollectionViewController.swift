@@ -40,6 +40,8 @@ class UserCollectionViewController: UICollectionViewController {
         dataSource = createDatasource()
         collectionView.dataSource = dataSource
         collectionView.collectionViewLayout = createLayout()
+        
+        update()
     }
     
     func update() {
@@ -80,37 +82,34 @@ class UserCollectionViewController: UICollectionViewController {
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
-        let spacing: CGFloat = 20
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .fractionalHeight(1)
-        )
+        let itemSize =
+           NSCollectionLayoutSize(widthDimension: .fractionalHeight(1),
+           heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.45),
-            heightDimension: .fractionalHeight(1)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitem: item,
-            count: 2)
-        group.interItemSpacing = .fixed(spacing)
-        
+
+        let groupSize =
+           NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
+           heightDimension: .fractionalWidth(0.45))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize:
+           groupSize, subitem: item, count: 2)
+        group.interItemSpacing = .fixed(20)
+
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = spacing
-        section.contentInsets = .init(top: spacing, leading: spacing, bottom: spacing, trailing: spacing)
+        section.interGroupSpacing = 20
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20,
+           leading: 20, bottom: 20, trailing: 20)
+        ;
         return UICollectionViewCompositionalLayout(section: section)
     }
     
-    
-    @IBSegueAction func showUserDetail(_ coder: NSCoder, sender: UICollectionViewCell?) -> UserDetailViewController? {
+    @IBSegueAction func showUserDetail(_ coder: NSCoder, sender:
+                                        UICollectionViewCell?) -> UserDetailViewController? {
         guard let cell = sender,
               let indexPath = collectionView.indexPath(for: cell),
               let item = dataSource.itemIdentifier(for: indexPath) else {
             return nil
         }
-
+        
         return UserDetailViewController(coder: coder, user: item.user)
     }
 }

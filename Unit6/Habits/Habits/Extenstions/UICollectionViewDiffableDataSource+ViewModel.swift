@@ -17,16 +17,23 @@ extension UICollectionViewDiffableDataSource {
                            sectionsRetainedIfEmpty: sectionsRetainedIfEmpty)
     }
     
-    func applySnapshotUsing(sectionIDs: [SectionIdentifierType],itemsBySection: [SectionIdentifierType: [ItemIdentifierType]], animatingDifferences: Bool, sectionsRetainedIfEmpty: Set<SectionIdentifierType> = Set<SectionIdentifierType>()) {
+    func applySnapshotUsing(sectionIDs: [SectionIdentifierType],
+                            itemsBySection: [SectionIdentifierType:
+                                [ItemIdentifierType]], animatingDifferences: Bool,
+                            sectionsRetainedIfEmpty: Set<SectionIdentifierType> =
+                                Set<SectionIdentifierType>()) {
+        
         var snapshot = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>()
-        
-        for sectionId in sectionIDs {
-            guard let sectionItems = itemsBySection[sectionId],
-                  sectionItems.count > 0 || sectionsRetainedIfEmpty.contains(sectionId) else { continue }
-            snapshot.appendSections([sectionId])
-            snapshot.appendItems(sectionItems, toSection: sectionId)
+
+        for sectionID in sectionIDs {
+            guard let sectionItems = itemsBySection[sectionID],
+                  sectionItems.count > 0 || sectionsRetainedIfEmpty.contains(sectionID) else
+            { continue }
+
+            snapshot.appendSections([sectionID])
+            snapshot.appendItems(sectionItems, toSection: sectionID)
         }
-        
+
         self.apply(snapshot, animatingDifferences: animatingDifferences)
     }
 }

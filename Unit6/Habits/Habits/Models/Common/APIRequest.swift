@@ -5,7 +5,7 @@
 //  Created by 杉原大貴 on 2021/02/11.
 //
 
-import Foundation
+import UIKit
 
 protocol APIRequest {
     associatedtype Response
@@ -59,6 +59,38 @@ extension APIRequest where Response: Decodable {
                 }
             } catch {
             }
+        }.resume()
+    }
+}
+
+enum ImageRequestError: Error {
+    case couldNotInitializeFromData
+}
+
+extension APIRequest where Response == UIImage {
+    func send(completion: @escaping (Result<Self.Response, Error>) ->
+       Void) {
+        URLSession.shared.dataTask(with: request) { (data, _, error) in
+            if let data = data,
+                let image = UIImage(data: data) {
+                print(request.url)
+                completion(.success(image))
+            } else if let error = error {
+                print(request.url)
+                completion(.failure(error))
+            } else {
+                print(request.url)
+                completion(.failure(ImageRequestError
+                   .couldNotInitializeFromData))
+            }
+        }.resume()
+    }
+}
+
+extension APIRequest {
+    func send(completion: @escaping (Error?) -> Void) {
+        URLSession.shared.dataTask(with: request) { (_, _, error) in
+            completion(error)
         }.resume()
     }
 }

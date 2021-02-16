@@ -7,8 +7,8 @@
 
 import UIKit
 
-private let headerIdentifier = "HeaderView"
 private let headerKind = "SectionHeader"
+private let headerIdentifier = "HeaderView"
 
 class UserDetailViewController: UIViewController {
     
@@ -52,18 +52,18 @@ class UserDetailViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-          
+
         update()
-          
+
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1,
                                            repeats: true) { _ in
             self.update()
         }
     }
-     
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-          
+
         updateTimer?.invalidate()
         updateTimer = nil
     }
@@ -74,6 +74,13 @@ class UserDetailViewController: UIViewController {
         userNameLabel.text = user.name
         bioLabel.text = user.bio
         
+        
+        collectionView.register(
+            NamedSectionHeaderView.self,
+            forSupplementaryViewOfKind: headerKind,
+            withReuseIdentifier: headerIdentifier
+        )
+        
         collectionView.register(NamedSectionHeaderView.self, forSupplementaryViewOfKind: headerKind, withReuseIdentifier: headerIdentifier)
         
         dataSource = createDataSource()
@@ -81,6 +88,19 @@ class UserDetailViewController: UIViewController {
         collectionView.collectionViewLayout = createLayout()
         
         update()
+
+        ImageRequest(imageID: user.id).send { result in
+            switch result {
+            case .success(let image):
+                print(image)
+                DispatchQueue.main.async {
+                    self.profileImageView.image = image
+                }
+            default:
+                print("dame")
+                break
+            }
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -146,7 +166,7 @@ class UserDetailViewController: UIViewController {
     private func createDataSource() -> DataSourceType {
         let dataSource = DataSourceType(collectionView: collectionView) {
             collectionView, indexPath, habitStat -> UICollectionViewCell? in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "habitCount", for: indexPath) as! PrimarySecondaryTextCollectionViewCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HabitCount", for: indexPath) as! PrimarySecondaryTextCollectionViewCell
             cell.primaryTextLabel.text = habitStat.habit.name
             cell.secondarytextLabel.text = "\(habitStat.count)"
             
@@ -154,7 +174,7 @@ class UserDetailViewController: UIViewController {
         }
         
         dataSource.supplementaryViewProvider = { (collectionView, category, indexPath) in
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: headerIdentifier, withReuseIdentifier: headerKind, for: indexPath) as! NamedSectionHeaderView
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: headerKind, withReuseIdentifier: headerIdentifier, for: indexPath) as! NamedSectionHeaderView
             
             let section = dataSource.snapshot().sectionIdentifiers[indexPath.section]
             
